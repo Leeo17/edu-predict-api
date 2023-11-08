@@ -4,17 +4,7 @@ from pydantic import BaseModel
 from datetime import datetime, timedelta
 from jose import JWTError, jwt
 from passlib.context import CryptContext
-from setttings import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
-
-
-fake_db = {
-    "leo": {
-        "email": "leo@gmail.com",
-        "full_name": "Leo Messi",
-        "hashed_password": "",
-        "disabled": False,
-    }
-}
+from settings import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
 
 
 class Token(BaseModel):
@@ -28,26 +18,27 @@ class TokenData(BaseModel):
 
 class User(BaseModel):
     email: str
-    full_name: str or None = None
-    disabled: bool or None = None
+    full_name: str
+    email_confirmed: bool
+    disabled: bool
 
 
 class UserInDB(User):
     hashed_password: str
 
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+crypt_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 app = FastAPI()
 
 
 def verify_password(plain_password, hashed_password):
-    return pwd_context.verify(plain_password, hashed_password)
+    return crypt_context.verify(plain_password, hashed_password)
 
 
 def get_password_hash(password):
-    return pwd_context.hash(password)
+    return crypt_context.hash(password)
 
 
 def get_user(db, email: str):
