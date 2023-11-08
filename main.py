@@ -1,3 +1,4 @@
+from typing import Annotated
 from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from pydantic import BaseModel
@@ -5,6 +6,16 @@ from datetime import datetime, timedelta
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from settings import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
+import models
+from database import engine, SessionLocal
+from sqlalchemy.orm import Session
+from sqlalchemy.exc import SQLAlchemyError
+
+app = FastAPI()
+models.Base.metadata.create_all(bind=engine)
+
+crypt_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 
 class Token(BaseModel):
@@ -16,21 +27,31 @@ class TokenData(BaseModel):
     email: str or None = None
 
 
-class User(BaseModel):
+class UsuarioInput(BaseModel):
     email: str
-    full_name: str
-    email_confirmed: bool
-    disabled: bool
+    nome_completo: str
+    senha: str
 
 
-class UserInDB(User):
-    hashed_password: str
+class Usuario(UsuarioInput):
+    email_confirmado: bool
+    desabilitado: bool
+    data_cadastro: datetime
 
 
-crypt_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+class UsuarioDB(Usuario):
+    hash_senha: str
 
-app = FastAPI()
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+
+db_dependency = Annotated[Session, Depends(get_db)]
 
 
 def verify_password(plain_password, hashed_password):
@@ -44,7 +65,7 @@ def get_password_hash(password):
 def get_user(db, email: str):
     if email in db:
         user_data = db[email]
-        return UserInDB(**user_data)
+        return UsuarioDB(**user_data)
 
 
 def authenticate_user(db, email: str, password: str):
@@ -93,7 +114,9 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
     return user
 
 
-async def get_current_activate_user(current_user: UserInDB = Depends(get_current_user)):
+async def get_current_activate_user(
+    current_user: UsuarioDB = Depends(get_current_user),
+):
     if current_user.disabled:
         raise HTTPException(status_code=400, detail="Usuário inativo")
 
@@ -116,11 +139,49 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     return {"access_token": access_token, "token_type": "bearer"}
 
 
-@app.get("/user", response_model=User)
-async def show_current_user(current_user: User = Depends(get_current_activate_user)):
+@app.get("/user", response_model=Usuario)
+async def show_current_user(current_user: Usuario = Depends(get_current_activate_user)):
     return current_user
 
 
-@app.post("/user", response_model=User)
-async def create_user(current_user: User = Depends(get_current_activate_user)):
-    return current_user
+@app.post("/user/", response_model=Usuario)
+async def create_user(user: UsuarioInput, db: db_dependency):
+    # Check if the email belongs to the UFPR domain
+    domain = "ufpr.br"
+    if not user.email.endswith(f"@{domain}"):
+        raise HTTPException(
+            status_code=400, detail="O email deve terminar com @ufpr.br"
+        )
+
+    # Check if the email is already registered
+    db_user = (
+        db.query(models.Usuario).filter(models.Usuario.email == user.email).first()
+    )
+    if db_user:
+        raise HTTPException(
+            status_code=400, detail="O email já está cadastrado no sistema"
+        )
+
+    # Check if the password has at least 6 characters
+    if len(user.senha) < 6:
+        raise HTTPException(
+            status_code=400, detail="A senha deve ter pelo menos 6 caracteres"
+        )
+
+    db_user = models.Usuario(
+        email=user.email,
+        nome_completo=user.nome_completo,
+        senha=get_password_hash(user.senha),
+    )
+
+    try:
+        db.add(db_user)
+        db.commit()
+        db.refresh(db_user)
+    except SQLAlchemyError as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error when adding the user to the database: {str(e.orig)}",
+        )
+
+    return db_user
