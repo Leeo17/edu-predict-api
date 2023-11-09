@@ -4,17 +4,20 @@ from fastapi import HTTPException, status
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy.orm import Session
 
 import models
 import schemas
+from database import db_session
 from settings import ALGORITHM, SECRET_KEY
 
 crypt_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
-def get_user_by_email(db: Session, email: str):
-    return db.query(models.Usuario).filter(models.Usuario.email == email).first()
+def get_user_by_email(email: str):
+    db_context = db_session.get()
+    return (
+        db_context.query(models.Usuario).filter(models.Usuario.email == email).first()
+    )
 
 
 def verify_password(plain_password, hashed_password):
@@ -25,9 +28,8 @@ def get_password_hash(password):
     return crypt_context.hash(password)
 
 
-def create_user(
-    db: Session, user: schemas.UsuarioInput, creator_email: str or None = None
-):
+def create_user(user: schemas.UsuarioInput, creator_email: str or None = None):
+    db_context = db_session.get()
     # Check if the email belongs to the UFPR domain
     domain = "ufpr.br"
     if not user.email.endswith(f"@{domain}"):
@@ -37,7 +39,9 @@ def create_user(
 
     # Check if the email is already registered
     db_user = (
-        db.query(models.Usuario).filter(models.Usuario.email == user.email).first()
+        db_context.query(models.Usuario)
+        .filter(models.Usuario.email == user.email)
+        .first()
     )
     if db_user:
         raise HTTPException(
@@ -58,19 +62,19 @@ def create_user(
     )
 
     try:
-        db.add(db_user)
-        db.commit()
-        db.refresh(db_user)
+        db_context.add(db_user)
+        db_context.commit()
+        db_context.refresh(db_user)
     except SQLAlchemyError as e:
         raise HTTPException(
             status_code=500,
             detail=f"Error when adding the user to the database: {str(e.orig)}",
         )
 
-    return schemas.UsuarioResponse(**db_user.__dict__)
+    return schemas.Usuario(**db_user.__dict__)
 
 
-def get_current_user(db: Session, token: str):
+def get_current_user(token: str):
     credential_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Não foi possível validar as credenciais",
@@ -87,7 +91,7 @@ def get_current_user(db: Session, token: str):
     except JWTError:
         raise credential_exception
 
-    user = get_user_by_email(db=db, email=token_data.email)
+    user = get_user_by_email(email=token_data.email)
     if user is None:
         raise credential_exception
 
@@ -97,8 +101,8 @@ def get_current_user(db: Session, token: str):
     return user
 
 
-def authenticate_user(db: Session, email: str, password: str):
-    user = get_user_by_email(db, email=email)
+def authenticate_user(email: str, password: str):
+    user = get_user_by_email(email=email)
     if not user:
         return False
     if not verify_password(password, user.senha):

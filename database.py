@@ -1,13 +1,32 @@
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.ext.declarative import declarative_base
-from settings import DB_HOST, DB_PORT, DB_DATABASE, DB_USERNAME, DB_PASSWORD
+from contextvars import ContextVar
 
-URL_DATABASE = (
-    f"postgresql://{DB_USERNAME}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DATABASE}"
-)
-engine = create_engine(URL_DATABASE)
+from sqlalchemy import create_engine
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import Session, sessionmaker
+
+from settings import DB_DATABASE, DB_HOST, DB_PASSWORD, DB_PORT, DB_USERNAME
+
+
+def get_uri():
+    return f"postgresql://{DB_USERNAME}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DATABASE}"
+
+
+engine = create_engine(get_uri())
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()
+
+
+def get_db():
+    db: Session = SessionLocal()
+    try:
+        yield db
+        db.commit()
+    except Exception:
+        db.rollback()
+    finally:
+        db.close()
+
+
+db_session: ContextVar[Session] = ContextVar("db_session")

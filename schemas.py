@@ -18,13 +18,7 @@ class UsuarioInput(BaseModel):
     senha: str
 
 
-class Usuario(UsuarioInput):
-    email_confirmado: bool
-    desabilitado: bool
-    data_cadastro: datetime
-
-
-class UsuarioResponse(BaseModel):
+class Usuario(BaseModel):
     email: str
     nome_completo: str
     email_confirmado: bool
