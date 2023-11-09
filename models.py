@@ -1,6 +1,8 @@
-from datetime import datetime
 import uuid
-from sqlalchemy import UUID, Boolean, Column, ForeignKey, String, DateTime, JSON
+from datetime import datetime
+
+from sqlalchemy import JSON, UUID, Boolean, Column, DateTime, ForeignKey, String
+
 from database import Base
 
 
@@ -14,7 +16,7 @@ class Usuario(Base):
     email_confirmado = Column(Boolean, default=False, nullable=False)
     desabilitado = Column(Boolean, default=False, nullable=False)
     data_cadastro = Column(DateTime, default=datetime.utcnow, nullable=False)
-    criado_por = Column(UUID(as_uuid=True), ForeignKey("usuarios.id"))
+    criado_por = Column(String)
 
 
 class Analise(Base):
