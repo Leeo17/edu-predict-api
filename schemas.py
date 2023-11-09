@@ -21,6 +21,6 @@ class UsuarioInput(BaseModel):
 class Usuario(BaseModel):
     email: str
     nome_completo: str
-    email_confirmado: bool
-    desabilitado: bool
+    email_verificado: bool
+    usuario_ativo: bool
     data_cadastro: datetime

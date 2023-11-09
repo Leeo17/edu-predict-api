@@ -28,6 +28,14 @@ def get_password_hash(password):
     return crypt_context.hash(password)
 
 
+def verify_user(user: models.Usuario):
+    if not user.email_verificado:
+        raise HTTPException(status_code=400, detail="Email não verificado")
+
+    if not user.usuario_ativo:
+        raise HTTPException(status_code=400, detail="Usuário inativo")
+
+
 def create_user(user: schemas.UsuarioInput, creator_email: str or None = None):
     db_context = db_session.get()
     # Check if the email belongs to the UFPR domain
@@ -95,14 +103,14 @@ def get_current_user(token: str):
     if user is None:
         raise credential_exception
 
-    if user.desabilitado:
-        raise HTTPException(status_code=400, detail="Usuário inativo")
+    verify_user(user)
 
     return user
 
 
 def authenticate_user(email: str, password: str):
     user = get_user_by_email(email=email)
+    verify_user(user)
     if not user:
         return False
     if not verify_password(password, user.senha):

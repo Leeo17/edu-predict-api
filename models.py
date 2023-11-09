@@ -13,8 +13,8 @@ class Usuario(Base):
     email = Column(String, unique=True, index=True, nullable=False)
     senha = Column(String, nullable=False)
     nome_completo = Column(String, nullable=False)
-    email_confirmado = Column(Boolean, default=False, nullable=False)
-    desabilitado = Column(Boolean, default=False, nullable=False)
+    email_verificado = Column(Boolean, default=False, nullable=False)
+    usuario_ativo = Column(Boolean, default=False, nullable=False)
     data_cadastro = Column(DateTime, default=datetime.utcnow, nullable=False)
     criado_por = Column(String)
 
