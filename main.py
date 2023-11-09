@@ -1,3 +1,4 @@
+from contextvars import ContextVar
 from typing import Annotated
 from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
@@ -11,11 +12,12 @@ from database import engine, SessionLocal
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
 
+
 app = FastAPI()
 models.Base.metadata.create_all(bind=engine)
 
 crypt_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 
 class Token(BaseModel):
@@ -39,10 +41,6 @@ class Usuario(UsuarioInput):
     data_cadastro: datetime
 
 
-class UsuarioDB(Usuario):
-    hash_senha: str
-
-
 def get_db():
     db = SessionLocal()
     try:
@@ -51,7 +49,7 @@ def get_db():
         db.close()
 
 
-db_dependency = Annotated[Session, Depends(get_db)]
+db_session: ContextVar[Session] = ContextVar("db_session")
 
 
 def verify_password(plain_password, hashed_password):
@@ -62,17 +60,26 @@ def get_password_hash(password):
     return crypt_context.hash(password)
 
 
-def get_user(db, email: str):
-    if email in db:
-        user_data = db[email]
-        return UsuarioDB(**user_data)
+def get_user(email: str):
+    db = db_session.get()
+
+    db_user = db.query(models.Usuario).filter(models.Usuario.email == email).first()
+    user = Usuario(
+        email=db_user.email,
+        nome_completo=db_user.nome_completo,
+        senha=db_user.senha,
+        email_confirmado=db_user.email_confirmado,
+        desabilitado=db_user.desabilitado,
+        data_cadastro=db_user.data_cadastro,
+    )
+    return user
 
 
-def authenticate_user(db, email: str, password: str):
-    user = get_user(db, email)
+def authenticate_user(email: str, password: str):
+    user = get_user(email=email)
     if not user:
         return False
-    if not verify_password(password, user.hashed_password):
+    if not verify_password(password, user.senha):
         return False
 
     return user
@@ -91,6 +98,11 @@ def create_access_token(data: dict, expires_delta: timedelta or None = None):
 
 
 async def get_current_user(token: str = Depends(oauth2_scheme)):
+    current_user = await get_user_by_token(token)
+    return current_user
+
+
+async def get_user_by_token(token: str):
     credential_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Não foi possível validar as credenciais",
@@ -107,25 +119,23 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
     except JWTError:
         raise credential_exception
 
-    user = get_user(fake_db, email=token_data.email)
+    user = get_user(email=token_data.email)
     if user is None:
         raise credential_exception
+
+    if user.disabled:
+        raise HTTPException(status_code=400, detail="Usuário inativo")
 
     return user
 
 
-async def get_current_activate_user(
-    current_user: UsuarioDB = Depends(get_current_user),
-):
-    if current_user.disabled:
-        raise HTTPException(status_code=400, detail="Usuário inativo")
-
-    return current_user
-
-
 @app.post("/login", response_model=Token)
-async def login(form_data: OAuth2PasswordRequestForm = Depends()):
-    user = authenticate_user(fake_db, form_data.email, form_data.password)
+async def login(
+    form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)
+):
+    db_session.set(db)
+
+    user = authenticate_user(form_data.username, form_data.password)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -139,13 +149,20 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     return {"access_token": access_token, "token_type": "bearer"}
 
 
-@app.get("/user", response_model=Usuario)
-async def show_current_user(current_user: Usuario = Depends(get_current_activate_user)):
-    return current_user
+# @app.get("/user", response_model=Usuario)
+# async def show_current_user(
+#     current_user: Usuario = Depends(get_current_user),
+# ):
+#     return current_user
 
 
 @app.post("/user/", response_model=Usuario)
-async def create_user(user: UsuarioInput, db: db_dependency):
+async def create_user(
+    user: UsuarioInput,
+    db: Session = Depends(get_db),
+):
+    db_session.set(db)
+
     # Check if the email belongs to the UFPR domain
     domain = "ufpr.br"
     if not user.email.endswith(f"@{domain}"):
@@ -172,6 +189,7 @@ async def create_user(user: UsuarioInput, db: db_dependency):
         email=user.email,
         nome_completo=user.nome_completo,
         senha=get_password_hash(user.senha),
+        criado_por=None,
     )
 
     try:

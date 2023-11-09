@@ -14,6 +14,7 @@ class Usuario(Base):
     email_confirmado = Column(Boolean, default=False, nullable=False)
     desabilitado = Column(Boolean, default=False, nullable=False)
     data_cadastro = Column(DateTime, default=datetime.utcnow, nullable=False)
+    criado_por = Column(UUID(as_uuid=True), ForeignKey("usuarios.id"))
 
 
 class Analise(Base):
