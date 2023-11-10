@@ -110,11 +110,12 @@ def get_current_user(token: str):
 
 def authenticate_user(email: str, password: str):
     user = get_user_by_email(email=email)
-    verify_user(user)
     if not user:
         return False
     if not verify_password(password, user.senha):
         return False
+
+    verify_user(user)
 
     return user
 
