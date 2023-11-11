@@ -77,7 +77,7 @@ async def login(
     access_token = crud.create_access_token(
         data={"sub": user.email}, expires_delta=access_token_expires
     )
-    return {"access_token": access_token, "token_type": "bearer"}
+    return {"access_token": access_token, "user": user}
 
 
 @app.get("/user", response_model=schemas.Usuario)
