@@ -64,7 +64,8 @@ def create_user(user: schemas.UsuarioInput, creator_email: str or None = None):
 
     db_user = models.Usuario(
         email=user.email,
-        nome_completo=user.nome_completo,
+        nome=user.nome,
+        sobrenome=user.sobrenome,
         senha=get_password_hash(user.senha),
         criado_por=creator_email,
     )

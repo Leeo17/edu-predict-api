@@ -5,13 +5,15 @@ from pydantic import BaseModel
 
 class UsuarioInput(BaseModel):
     email: str
-    nome_completo: str
+    nome: str
+    sobrenome: str
     senha: str
 
 
 class Usuario(BaseModel):
     email: str
-    nome_completo: str
+    nome: str
+    sobrenome: str
     email_verificado: bool
     usuario_ativo: bool
     data_cadastro: datetime

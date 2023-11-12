@@ -34,7 +34,8 @@ INITIAL_DATA = {
     "usuarios": [
         {
             "email": "admin@ufpr.br",
-            "nome_completo": "Administrador",
+            "nome": "Administrador",
+            "sobrenome": "Admin",
             "senha": crud.get_password_hash("123qweadmin"),
             "email_verificado": True,
             "usuario_ativo": True,
