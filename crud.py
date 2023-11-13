@@ -8,7 +8,7 @@ from sqlalchemy.exc import SQLAlchemyError
 import models
 import schemas
 from database import db_session
-from settings import ALGORITHM, SECRET_KEY
+from settings import settings
 
 crypt_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -91,7 +91,9 @@ def get_current_user(token: str):
     )
 
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        payload = jwt.decode(
+            token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
+        )
         email: str = payload.get("sub")
         if email is None:
             raise credential_exception
@@ -129,5 +131,7 @@ def create_access_token(data: dict, expires_delta: timedelta or None = None):
         datetime.utcnow() + timedelta(minutes=15)
 
     to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    encoded_jwt = jwt.encode(
+        to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM
+    )
     return encoded_jwt

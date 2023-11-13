@@ -1,16 +1,26 @@
-import os
-from os.path import join, dirname
-from dotenv import load_dotenv
+from pydantic import EmailStr
+from pydantic_settings import BaseSettings
 
-dotenv_path = join(dirname(__file__), ".env")
-load_dotenv(dotenv_path)
 
-SECRET_KEY = os.environ.get("SECRET_KEY")
-ALGORITHM = os.environ.get("ALGORITHM")
-ACCESS_TOKEN_EXPIRE_MINUTES = int(os.environ.get("ACCESS_TOKEN_EXPIRE_MINUTES"))
+class Settings(BaseSettings):
+    SECRET_KEY: str
+    ALGORITHM: str
+    ACCESS_TOKEN_EXPIRE_MINUTES: int
 
-DB_HOST = os.environ.get("DB_HOST")
-DB_PORT = os.environ.get("DB_PORT")
-DB_DATABASE = os.environ.get("DB_DATABASE")
-DB_USERNAME = os.environ.get("DB_USERNAME")
-DB_PASSWORD = os.environ.get("DB_PASSWORD")
+    DB_HOST: str
+    DB_PORT: str
+    DB_DATABASE: str
+    DB_USERNAME: str
+    DB_PASSWORD: str
+
+    EMAIL_HOST: str
+    EMAIL_PORT: int
+    EMAIL_USERNAME: str
+    EMAIL_PASSWORD: str
+    EMAIL_FROM: EmailStr
+
+    class Config:
+        env_file = "./.env"
+
+
+settings = Settings()

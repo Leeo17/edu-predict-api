@@ -10,7 +10,7 @@ import crud
 import models
 import schemas
 from database import Base, db_session, engine, get_db
-from settings import ACCESS_TOKEN_EXPIRE_MINUTES
+from settings import settings
 
 app = FastAPI()
 
@@ -74,7 +74,7 @@ async def login(
             detail="Email ou senha inválidos",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = crud.create_access_token(
         data={"sub": user.email}, expires_delta=access_token_expires
     )

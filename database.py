@@ -4,11 +4,11 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import Session, sessionmaker
 
-from settings import DB_DATABASE, DB_HOST, DB_PASSWORD, DB_PORT, DB_USERNAME
+from settings import settings
 
 
 def get_uri():
-    return f"postgresql://{DB_USERNAME}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DATABASE}"
+    return f"postgresql://{settings.DB_USERNAME}:{settings.DB_PASSWORD}@{settings.DB_HOST}:{settings.DB_PORT}/{settings.DB_DATABASE}"
 
 
 engine = create_engine(get_uri())
