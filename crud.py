@@ -62,6 +62,17 @@ def create_user(user: schemas.UsuarioInput, creator_email: str or None = None):
             status_code=400, detail="A senha deve ter pelo menos 6 caracteres"
         )
 
+    # Check if the password matches the confirmation
+    if user.senha != user.confirmar_senha:
+        raise HTTPException(status_code=400, detail="As senhas não correspondem")
+
+    # Check if the first and last name have at least 2 characters
+    if len(user.nome) < 2 or len(user.sobrenome) < 2:
+        raise HTTPException(
+            status_code=400,
+            detail="O nome e sobrenome devem ter pelo menos 2 caracteres",
+        )
+
     db_user = models.Usuario(
         email=user.email,
         nome=user.nome,
