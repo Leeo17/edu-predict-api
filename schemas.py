@@ -8,6 +8,7 @@ class UsuarioInput(BaseModel):
     nome: str
     sobrenome: str
     senha: str
+    confirmar_senha: str
 
 
 class Usuario(BaseModel):
