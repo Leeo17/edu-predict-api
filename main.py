@@ -88,7 +88,7 @@ async def show_current_user(
     return current_user
 
 
-@app.post("/user/", response_model=schemas.Usuario)
+@app.post("/user", response_model=schemas.Usuario)
 async def create_user(
     user: schemas.UsuarioInput,
     current_user: schemas.Usuario = Depends(current_user),
