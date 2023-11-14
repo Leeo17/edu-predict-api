@@ -15,9 +15,9 @@ class Usuario(Base):
     nome = Column(String, nullable=False)
     sobrenome = Column(String, nullable=False)
     email_verificado = Column(Boolean, default=False, nullable=False)
-    usuario_ativo = Column(Boolean, default=False, nullable=False)
-    data_cadastro = Column(DateTime, default=datetime.utcnow, nullable=False)
+    codigo_senha = Column(String)
     criado_por = Column(String)
+    data_cadastro = Column(DateTime, default=datetime.utcnow, nullable=False)
 
 
 class Analise(Base):
