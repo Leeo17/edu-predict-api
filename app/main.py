@@ -6,11 +6,11 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy import event
 from sqlalchemy.orm import Session
 
-import crud
-import models
-import schemas
-from database import Base, db_session, engine, get_db
-from settings import settings
+import app.core.models.models as models
+import app.core.schemas.schemas as schemas
+import app.core.utils.crud as crud
+from app.core.models.database import Base, db_session, engine, get_db
+from app.core.settings import settings
 
 app = FastAPI()
 

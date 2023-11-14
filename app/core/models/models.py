@@ -3,7 +3,7 @@ from datetime import datetime
 
 from sqlalchemy import JSON, UUID, Boolean, Column, DateTime, ForeignKey, String
 
-from database import Base
+from app.core.models.database import Base
 
 
 class Usuario(Base):

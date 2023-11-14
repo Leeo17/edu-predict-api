@@ -5,10 +5,10 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 from sqlalchemy.exc import SQLAlchemyError
 
-import models
-import schemas
-from database import db_session
-from settings import settings
+import app.core.models.models as models
+import app.core.schemas.schemas as schemas
+from app.core.models.database import db_session
+from app.core.settings import settings
 
 crypt_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
