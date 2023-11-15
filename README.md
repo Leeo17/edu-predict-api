@@ -9,3 +9,4 @@
     pip install passlib[bcrypt]
     pip install Jinja2
     pip install fastapi-mail
+    pip install gunicorn
