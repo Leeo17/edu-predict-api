@@ -1,0 +1,34 @@
+{% extends 'base.html' %} {% block content %}
+
+    <p>Olá {{ first_name }},</p>
+    <p>
+        O seu email foi cadastrado no Edu Predict, um projeto para determinar um
+        índice de potencial evasão de estudantes da UFPR. Se você não foi informado
+        desse cadastro, por favor, ignore este email. Caso contrário, clique no link
+        abaixo para confirmar o cadastro.
+    </p>
+    <table
+            role="presentation"
+            border="0"
+            cellpadding="0"
+            cellspacing="0"
+            class="btn btn-primary"
+    >
+        <tbody>
+        <tr>
+            <td align="left">
+                <table role="presentation" border="0" cellpadding="0" cellspacing="0">
+                    <tbody>
+                    <tr>
+                        <td>
+                            <a href="#" target="_blank">Verificar email</a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+{% endblock %}

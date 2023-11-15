@@ -38,7 +38,6 @@ INITIAL_DATA = {
             "sobrenome": "Admin",
             "senha": crud.get_password_hash("123qweadmin"),
             "email_verificado": True,
-            "usuario_ativo": True,
         },
     ],
 }
@@ -56,7 +55,9 @@ event.listen(models.Usuario.__table__, "after_create", initialize_table)
 Base.metadata.create_all(bind=engine)
 
 
-def current_user(db: Session = Depends(get_db), token: str = Depends(oauth2_scheme)):
+def get_current_user(
+    db: Session = Depends(get_db), token: str = Depends(oauth2_scheme)
+):
     db_session.set(db)
     return crud.get_current_user(token)
 
@@ -83,7 +84,7 @@ async def login(
 
 @app.get("/user", response_model=schemas.Usuario)
 async def show_current_user(
-    current_user: schemas.Usuario = Depends(current_user),
+    current_user: schemas.Usuario = Depends(get_current_user),
 ):
     return current_user
 
@@ -91,9 +92,9 @@ async def show_current_user(
 @app.post("/user", response_model=schemas.Usuario)
 async def create_user(
     user: schemas.UsuarioInput,
-    current_user: schemas.Usuario = Depends(current_user),
+    current_user: schemas.Usuario = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     db_session.set(db)
 
-    return crud.create_user(user, current_user.email)
+    return await crud.create_user(user, current_user.email)

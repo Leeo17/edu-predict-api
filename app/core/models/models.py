@@ -11,7 +11,7 @@ class Usuario(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, index=True, default=uuid.uuid4)
     email = Column(String, unique=True, index=True, nullable=False)
-    senha = Column(String, nullable=False)
+    senha = Column(String)
     nome = Column(String, nullable=False)
     sobrenome = Column(String, nullable=False)
     email_verificado = Column(Boolean, default=False, nullable=False)

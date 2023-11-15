@@ -14,7 +14,6 @@ class Usuario(BaseModel):
     nome: str
     sobrenome: str
     email_verificado: bool
-    usuario_ativo: bool
     data_cadastro: datetime
 
 

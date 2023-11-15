@@ -1,4 +1,6 @@
+import hashlib
 from datetime import datetime, timedelta
+from random import randbytes
 
 from fastapi import HTTPException, status
 from jose import JWTError, jwt
@@ -9,6 +11,7 @@ import app.core.models.models as models
 import app.core.schemas.schemas as schemas
 from app.core.models.database import db_session
 from app.core.settings import settings
+from app.core.utils.mailer import Email
 
 crypt_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -32,11 +35,8 @@ def verify_user(user: models.Usuario):
     if not user.email_verificado:
         raise HTTPException(status_code=400, detail="Email não verificado")
 
-    if not user.usuario_ativo:
-        raise HTTPException(status_code=400, detail="Usuário inativo")
 
-
-def create_user(user: schemas.UsuarioInput, creator_email: str or None = None):
+async def create_user(user: schemas.UsuarioInput, creator_email: str or None = None):
     db_context = db_session.get()
     # Check if the email belongs to the UFPR domain
     domain = "ufpr.br"
@@ -56,41 +56,58 @@ def create_user(user: schemas.UsuarioInput, creator_email: str or None = None):
             status_code=400, detail="O email já está cadastrado no sistema"
         )
 
-    # Check if the password has at least 6 characters
-    if len(user.senha) < 6:
-        raise HTTPException(
-            status_code=400, detail="A senha deve ter pelo menos 6 caracteres"
-        )
+    # # Check if the password has at least 6 characters
+    # if len(user.senha) < 6:
+    #     raise HTTPException(
+    #         status_code=400, detail="A senha deve ter pelo menos 6 caracteres"
+    #     )
 
-    # Check if the password matches the confirmation
-    if user.senha != user.confirmar_senha:
-        raise HTTPException(status_code=400, detail="As senhas não correspondem")
+    # # Check if the password matches the confirmation
+    # if user.senha != user.confirmar_senha:
+    #     raise HTTPException(status_code=400, detail="As senhas não correspondem")
 
-    # Check if the first and last name have at least 2 characters
-    if len(user.nome) < 2 or len(user.sobrenome) < 2:
-        raise HTTPException(
-            status_code=400,
-            detail="O nome e sobrenome devem ter pelo menos 2 caracteres",
-        )
+    # # Check if the first and last name have at least 2 characters
+    # if len(user.nome) < 2 or len(user.sobrenome) < 2:
+    #     raise HTTPException(
+    #         status_code=400,
+    #         detail="O nome e sobrenome devem ter pelo menos 2 caracteres",
+    #     )
 
-    db_user = models.Usuario(
-        email=user.email,
-        nome=user.nome,
-        sobrenome=user.sobrenome,
-        senha=get_password_hash(user.senha),
-        criado_por=creator_email,
-    )
-
+    # Create user on database
     try:
+        token = randbytes(10)
+        hashed_code = hashlib.sha256()
+        hashed_code.update(token)
+        verification_code = hashed_code.hexdigest()
+
+        db_user = models.Usuario(
+            email=user.email,
+            nome=user.nome,
+            sobrenome=user.sobrenome,
+            codigo_senha=verification_code,
+            criado_por=creator_email,
+        )
+
         db_context.add(db_user)
-        db_context.commit()
-        db_context.refresh(db_user)
     except SQLAlchemyError as e:
         raise HTTPException(
             status_code=500,
-            detail=f"Error when adding the user to the database: {str(e.orig)}",
+            detail=f"Ocorreu um erro ao tentar adicionar o usuário na database: {str(e.orig)}",
         )
 
+    # Send verification email
+
+    try:
+        await Email(user.nome, [user.email]).send_verification_code()
+    except Exception as error:
+        db_context.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Ocorreu um erro ao enviar o email de verificação: {str(error)}",
+        )
+
+    db_context.commit()
+    db_context.refresh(db_user)
     return schemas.Usuario(**db_user.__dict__)
 
 
@@ -139,7 +156,7 @@ def create_access_token(data: dict, expires_delta: timedelta or None = None):
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
     else:
-        datetime.utcnow() + timedelta(minutes=15)
+        expire = datetime.utcnow() + timedelta(minutes=15)
 
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(
