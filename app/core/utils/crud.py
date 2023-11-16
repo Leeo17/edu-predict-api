@@ -181,6 +181,7 @@ def create_user_password(password_input: schemas.UsuarioPassInput):
     hashed_password = get_password_hash(password_input.senha)
 
     user.senha = hashed_password
+    user.email_verificado = True
 
     db_context.commit()
     db_context.refresh(user)
