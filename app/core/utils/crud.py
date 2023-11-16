@@ -169,9 +169,13 @@ def create_user_password(password_input: schemas.UsuarioPassInput):
     if password_input.senha != password_input.confirmar_senha:
         raise HTTPException(status_code=400, detail="As senhas não correspondem")
 
+    hashedCode = hashlib.sha256()
+    hashedCode.update(bytes.fromhex(password_input.codigo_verificacao))
+    verification_code = hashedCode.hexdigest()
+
     user = (
         db_context.query(models.Usuario)
-        .filter(models.Usuario.codigo_verificacao == password_input.codigo_verificacao)
+        .filter(models.Usuario.codigo_verificacao == verification_code)
         .first()
     )
 
