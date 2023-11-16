@@ -98,3 +98,13 @@ async def create_user(
     db_session.set(db)
 
     return await crud.create_user(user, current_user.email)
+
+
+@app.post("/user/password")
+async def create_user_password(
+    password_input: schemas.UsuarioPassInput,
+    db: Session = Depends(get_db),
+):
+    db_session.set(db)
+
+    return await crud.create_user_password(password_input)

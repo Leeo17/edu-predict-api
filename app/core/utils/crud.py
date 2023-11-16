@@ -56,22 +56,12 @@ async def create_user(user: schemas.UsuarioInput, creator_email: str or None = N
             status_code=400, detail="O email já está cadastrado no sistema"
         )
 
-    # # Check if the password has at least 6 characters
-    # if len(user.senha) < 6:
-    #     raise HTTPException(
-    #         status_code=400, detail="A senha deve ter pelo menos 6 caracteres"
-    #     )
-
-    # # Check if the password matches the confirmation
-    # if user.senha != user.confirmar_senha:
-    #     raise HTTPException(status_code=400, detail="As senhas não correspondem")
-
-    # # Check if the first and last name have at least 2 characters
-    # if len(user.nome) < 2 or len(user.sobrenome) < 2:
-    #     raise HTTPException(
-    #         status_code=400,
-    #         detail="O nome e sobrenome devem ter pelo menos 2 caracteres",
-    #     )
+    # Check if the first and last name have at least 2 characters
+    if len(user.nome) < 2 or len(user.sobrenome) < 2:
+        raise HTTPException(
+            status_code=400,
+            detail="O nome e sobrenome devem ter pelo menos 2 caracteres",
+        )
 
     # Create user on database
     try:
@@ -84,7 +74,7 @@ async def create_user(user: schemas.UsuarioInput, creator_email: str or None = N
             email=user.email,
             nome=user.nome,
             sobrenome=user.sobrenome,
-            codigo_senha=verification_code,
+            codigo_verificacao=verification_code,
             criado_por=creator_email,
         )
 
@@ -163,3 +153,33 @@ def create_access_token(data: dict, expires_delta: timedelta or None = None):
         to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM
     )
     return encoded_jwt
+
+
+def create_user_password(password_input: schemas.UsuarioPassInput):
+    db_context = db_session.get()
+
+    # Check if the password has at least 6 characters
+    if len(password_input.senha) < 6:
+        raise HTTPException(
+            status_code=400, detail="A senha deve ter pelo menos 6 caracteres"
+        )
+
+    # Check if the password matches the confirmation
+    if password_input.senha != password_input.confirmar_senha:
+        raise HTTPException(status_code=400, detail="As senhas não correspondem")
+
+    user = (
+        db_context.query(models.Usuario)
+        .filter(models.Usuario.codigo_verificacao == password_input.codigo_verificacao)
+        .first()
+    )
+
+    if not user:
+        raise HTTPException(status_code=400, detail="Código de verificação inválido")
+
+    hashed_password = get_password_hash(password_input.senha)
+
+    user.senha = hashed_password
+
+    db_context.commit()
+    db_context.refresh(user)

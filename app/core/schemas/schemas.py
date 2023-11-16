@@ -9,6 +9,12 @@ class UsuarioInput(BaseModel):
     sobrenome: str
 
 
+class UsuarioPassInput(BaseModel):
+    senha: str
+    confirmar_senha: str
+    codigo_verificacao: str
+
+
 class Usuario(BaseModel):
     email: str
     nome: str
