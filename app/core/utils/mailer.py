@@ -52,4 +52,4 @@ class Email:
         await fm.send_message(message)
 
     async def send_verification_code(self):
-        await self.send_mail("Your verification code (Valid for 10min)", "verification")
+        await self.send_mail("Complete seu cadastro no Edu Predict!", "verification")

@@ -20,6 +20,7 @@ class Usuario(BaseModel):
     nome: str
     sobrenome: str
     email_verificado: bool
+    data_verificacao: datetime
     data_cadastro: datetime
 
 

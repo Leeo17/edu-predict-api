@@ -17,6 +17,7 @@ class Usuario(Base):
     email_verificado = Column(Boolean, default=False, nullable=False)
     codigo_verificacao = Column(String)
     criado_por = Column(String)
+    data_verificacao = Column(DateTime)
     data_cadastro = Column(DateTime, default=datetime.utcnow, nullable=False)
 
 

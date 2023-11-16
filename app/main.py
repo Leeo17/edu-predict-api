@@ -105,4 +105,4 @@ async def create_user_password(
 ):
     db_session.set(db)
 
-    return await crud.create_user_password(password_input)
+    return crud.create_user_password(password_input)

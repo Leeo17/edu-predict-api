@@ -31,7 +31,7 @@ def get_password_hash(password):
     return crypt_context.hash(password)
 
 
-def verify_user(user: models.Usuario):
+def check_if_user_is_verified(user: models.Usuario):
     if not user.email_verificado:
         raise HTTPException(status_code=400, detail="Email não verificado")
 
@@ -125,7 +125,7 @@ def get_current_user(token: str):
     if user is None:
         raise credential_exception
 
-    verify_user(user)
+    check_if_user_is_verified(user)
 
     return user
 
@@ -134,10 +134,11 @@ def authenticate_user(email: str, password: str):
     user = get_user_by_email(email=email)
     if not user:
         return False
+
+    check_if_user_is_verified(user)
+
     if not verify_password(password, user.senha):
         return False
-
-    verify_user(user)
 
     return user
 
@@ -186,6 +187,10 @@ def create_user_password(password_input: schemas.UsuarioPassInput):
 
     user.senha = hashed_password
     user.email_verificado = True
+    user.codigo_verificacao = None
+    user.data_verificacao = datetime.utcnow()
 
     db_context.commit()
     db_context.refresh(user)
+
+    return True
