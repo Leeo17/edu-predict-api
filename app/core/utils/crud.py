@@ -88,7 +88,8 @@ async def create_user(user: schemas.UsuarioInput, creator_email: str or None = N
     # Send verification email
 
     try:
-        await Email(user.nome, [user.email]).send_verification_code()
+        url = f"{settings.APP_URL}/auth/set-password?code={token.hex()}"
+        await Email(user.nome, url, [user.email]).send_verification_code()
     except Exception as error:
         db_context.rollback()
         raise HTTPException(

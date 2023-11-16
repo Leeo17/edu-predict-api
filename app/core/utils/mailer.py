@@ -17,10 +17,11 @@ class EmailSchema(BaseModel):
 
 
 class Email:
-    def __init__(self, name: str, email: List[EmailStr]):
+    def __init__(self, name: str, url: str, email: List[EmailStr]):
         self.name = name
         self.sender = "Edu Predict <from@example.com>"
         self.email = email
+        self.url = url
         pass
 
     async def send_mail(self, subject, template):
@@ -39,7 +40,7 @@ class Email:
         # Generate the HTML template base on the template name
         template = env.get_template(f"{template}.html")
 
-        html = template.render(first_name=self.name, subject=subject)
+        html = template.render(url=self.url, first_name=self.name, subject=subject)
 
         # Define the message options
         message = MessageSchema(
