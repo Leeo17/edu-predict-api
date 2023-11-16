@@ -14,9 +14,7 @@ from app.core.settings import settings
 
 app = FastAPI()
 
-origins = [
-    "http://localhost:4200",
-]
+origins = ["http://localhost:4200", settings.APP_URL]
 
 app.add_middleware(
     CORSMiddleware,
