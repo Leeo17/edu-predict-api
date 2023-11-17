@@ -50,6 +50,3 @@ class Email:
         # Send the email
         fm = FastMail(conf)
         await fm.send_message(message)
-
-    async def send_verification_code(self):
-        await self.send_mail("Complete seu cadastro no Edu Predict!", "verification")

@@ -30,3 +30,7 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     email: str or None = None
+
+
+class EmailInput(BaseModel):
+    email: str

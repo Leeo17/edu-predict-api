@@ -86,10 +86,11 @@ async def create_user(user: schemas.UsuarioInput, creator_email: str or None = N
         )
 
     # Send verification email
-
     try:
         url = f"{settings.APP_URL}/auth/set-password?code={token.hex()}"
-        await Email(user.nome, url, [user.email]).send_verification_code()
+        await Email(user.nome, url, [user.email]).send_mail(
+            "Complete seu cadastro no Edu Predict", "verification"
+        )
     except Exception as error:
         db_context.rollback()
         raise HTTPException(
@@ -189,6 +190,41 @@ def create_user_password(password_input: schemas.UsuarioPassInput):
     user.email_verificado = True
     user.codigo_verificacao = None
     user.data_verificacao = datetime.utcnow()
+
+    db_context.commit()
+    db_context.refresh(user)
+
+    return True
+
+
+async def send_reset_password_email(email: str):
+    db_context = db_session.get()
+
+    user = (
+        db_context.query(models.Usuario).filter(models.Usuario.email == email).first()
+    )
+
+    if not user:
+        raise HTTPException(status_code=400, detail="Email não cadastrado")
+
+    token = randbytes(10)
+    hashed_code = hashlib.sha256()
+    hashed_code.update(token)
+    verification_code = hashed_code.hexdigest()
+
+    user.codigo_verificacao = verification_code
+
+    # Send verification email
+    try:
+        url = f"{settings.APP_URL}/auth/set-password?code={token.hex()}"
+        await Email(user.nome, url, [user.email]).send_mail(
+            "Recuperação de senha do Edu Predict", "reset"
+        )
+    except Exception as error:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Ocorreu um erro ao enviar o email de verificação: {str(error)}",
+        )
 
     db_context.commit()
     db_context.refresh(user)
