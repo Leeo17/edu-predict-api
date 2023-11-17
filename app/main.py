@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 
 import app.core.models.models as models
 import app.core.schemas.schemas as schemas
-import app.core.utils.crud as crud
+import app.core.utils.user as user
 from app.core.models.database import Base, db_session, engine, get_db
 from app.core.settings import settings
 
@@ -34,7 +34,7 @@ INITIAL_DATA = {
             "email": "admin@ufpr.br",
             "nome": "Administrador",
             "sobrenome": "Admin",
-            "senha": crud.get_password_hash("123qweadmin"),
+            "senha": user.get_password_hash("123qweadmin"),
             "email_verificado": True,
         },
     ],
@@ -57,7 +57,7 @@ def get_current_user(
     db: Session = Depends(get_db), token: str = Depends(oauth2_scheme)
 ):
     db_session.set(db)
-    return crud.get_current_user(token)
+    return user.get_current_user(token)
 
 
 @app.post("/login", response_model=schemas.Token)
@@ -66,7 +66,7 @@ async def login(
 ):
     db_session.set(db)
 
-    user = crud.authenticate_user(form_data.username, form_data.password)
+    user = user.authenticate_user(form_data.username, form_data.password)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -74,7 +74,7 @@ async def login(
             headers={"WWW-Authenticate": "Bearer"},
         )
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = crud.create_access_token(
+    access_token = user.create_access_token(
         data={"sub": user.email}, expires_delta=access_token_expires
     )
     return {"access_token": access_token, "user": user}
@@ -95,7 +95,7 @@ async def create_user(
 ):
     db_session.set(db)
 
-    return await crud.create_user(user, current_user.email)
+    return await user.create_user(user, current_user.email)
 
 
 @app.post("/user/password")
@@ -105,4 +105,4 @@ async def create_user_password(
 ):
     db_session.set(db)
 
-    return crud.create_user_password(password_input)
+    return user.create_user_password(password_input)
