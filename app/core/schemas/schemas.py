@@ -34,3 +34,8 @@ class TokenData(BaseModel):
 
 class EmailInput(BaseModel):
     email: str
+
+
+class Curso(BaseModel):
+    id: int
+    nome: str

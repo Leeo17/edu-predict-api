@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 
 import app.core.models.models as models
 import app.core.schemas.schemas as schemas
+import app.core.utils.analysis as analysis_service
 import app.core.utils.user as user_service
 from app.core.models.database import Base, db_session, engine, get_db
 from app.core.settings import settings
@@ -116,3 +117,8 @@ async def send_reset_password_email(
     db_session.set(db)
 
     return await user_service.send_reset_password_email(email_input.email)
+
+
+@app.get("/analysis/courses")
+async def get_courses(filter_course: str = ""):
+    return analysis_service.get_courses(filter_course)
