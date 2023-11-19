@@ -3598,12 +3598,12 @@ def get_all_courses():
     return allCourses
 
 
-def get_courses(filter_course: str):
+def get_courses(course_filter: str):
     all_courses = get_all_courses()
-    if filter_course == "":
+    if course_filter == "":
         return all_courses
 
     filtered_courses = [
-        course for course in all_courses if filter_course.lower() in course.nome.lower()
+        course for course in all_courses if course_filter.lower() in course.nome.lower()
     ]
     return filtered_courses

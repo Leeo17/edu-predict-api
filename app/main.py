@@ -120,5 +120,5 @@ async def send_reset_password_email(
 
 
 @app.get("/analysis/courses")
-async def get_courses(filter_course: str = ""):
-    return analysis_service.get_courses(filter_course)
+async def get_courses(course_filter: str = ""):
+    return analysis_service.get_courses(course_filter)
