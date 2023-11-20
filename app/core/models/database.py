@@ -8,7 +8,7 @@ from app.core.settings import settings
 
 
 def get_uri():
-    return f"postgresql://{settings.DB_USERNAME}:{settings.DB_PASSWORD}@{settings.DB_HOST}:{settings.DB_PORT}/{settings.DB_DATABASE}"
+    return settings.DATABASE_URL.replace("postgres", "postgresql")
 
 
 engine = create_engine(get_uri())
