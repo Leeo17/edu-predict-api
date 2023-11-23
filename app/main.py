@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 import app.core.models.models as models
 import app.core.schemas.schemas as schemas
 import app.core.utils.analysis as analysis_service
+import app.core.utils.courses as courses
 import app.core.utils.user as user_service
 from app.core.models.database import Base, db_session, engine, get_db
 from app.core.settings import settings
@@ -119,6 +120,15 @@ async def send_reset_password_email(
     return await user_service.send_reset_password_email(email_input.email)
 
 
-@app.get("/analysis/courses")
+@app.get("/analysis", response_model=list[schemas.Analise])
+async def get_all_user_analysis(
+    current_user: schemas.Usuario = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    db_session.set(db)
+    return analysis_service.get_all_user_analysis(current_user)
+
+
+@app.get("/analysis/courses", response_model=list[schemas.Curso])
 async def get_courses(course_filter: str = ""):
-    return analysis_service.get_courses(course_filter)
+    return courses.get_courses(course_filter)

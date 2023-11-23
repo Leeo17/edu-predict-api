@@ -1,4 +1,5 @@
 from datetime import datetime
+from uuid import UUID
 
 from pydantic import BaseModel
 
@@ -16,11 +17,19 @@ class UsuarioPassInput(BaseModel):
 
 
 class Usuario(BaseModel):
+    id: UUID
     email: str
     nome: str
     sobrenome: str
     email_verificado: bool
     data_cadastro: datetime
+
+
+class Analise(BaseModel):
+    id: UUID
+    id_usuario: UUID
+    indice_potencial_evasao: float
+    data: datetime
 
 
 class Token(BaseModel):

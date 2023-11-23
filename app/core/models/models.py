@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import JSON, UUID, Boolean, Column, DateTime, ForeignKey, String
+from sqlalchemy import UUID, Boolean, Column, DateTime, Double, ForeignKey, String
 
 from app.core.models.database import Base
 
@@ -26,5 +26,5 @@ class Analise(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, index=True)
     id_usuario = Column(UUID(as_uuid=True), ForeignKey("usuarios.id"), nullable=False)
-    resultado = Column(JSON, nullable=False)
+    indice_potencial_evasao = Column(Double, nullable=False)
     data = Column(DateTime, default=datetime.utcnow, nullable=False)
