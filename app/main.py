@@ -120,13 +120,13 @@ async def send_reset_password_email(
     return await user_service.send_reset_password_email(email_input.email)
 
 
-@app.get("/analysis", response_model=list[schemas.Analise])
-async def get_all_user_analysis(
+@app.get("/analyses", response_model=list[schemas.Analise])
+async def get_all_user_analyses(
     current_user: schemas.Usuario = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     db_session.set(db)
-    return analysis_service.get_all_user_analysis(current_user)
+    return analysis_service.get_all_user_analyses(current_user)
 
 
 @app.get("/analysis/courses", response_model=list[schemas.Curso])
