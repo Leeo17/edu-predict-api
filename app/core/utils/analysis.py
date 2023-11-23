@@ -25,4 +25,5 @@ def delete_user_analysis(analysis_id: str, user_id: str):
     if not db_analysis:
         raise HTTPException(status_code=404, detail="Análise não encontrada")
 
+    db_context.delete(db_analysis)
     db_context.commit()
