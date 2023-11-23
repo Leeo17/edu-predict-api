@@ -89,7 +89,7 @@ async def show_current_user(
     return current_user
 
 
-@app.post("/user", response_model=schemas.Usuario)
+@app.post("/user", response_model=schemas.Usuario, status_code=status.HTTP_201_CREATED)
 async def create_user(
     user: schemas.UsuarioInput,
     current_user: schemas.Usuario = Depends(get_current_user),
@@ -132,3 +132,14 @@ async def get_all_user_analyses(
 @app.get("/analysis/courses", response_model=list[schemas.Curso])
 async def get_courses(course_filter: str = ""):
     return courses.get_courses(course_filter)
+
+
+@app.delete("/analysis/{analysis_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_user_analysis(
+    analysis_id: str,
+    current_user: schemas.Usuario = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    db_session.set(db)
+
+    analysis_service.delete_user_analysis(analysis_id, current_user.id)
