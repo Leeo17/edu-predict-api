@@ -62,6 +62,14 @@ def get_current_user(
     return user_service.get_current_user(token)
 
 
+def count_filled_properties(analise_input: schemas.AnaliseInput) -> bool:
+    count = 0
+    for value in analise_input.model_dump().values():
+        if value != 0 and value != "":
+            count += 1
+    return count >= 15
+
+
 @app.post("/login", response_model=schemas.Token)
 async def login(
     form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)
@@ -143,3 +151,18 @@ async def delete_user_analysis(
     db_session.set(db)
 
     analysis_service.delete_user_analysis(analysis_id, current_user.id)
+
+
+@app.post("/analysis")
+async def new_analysis(
+    analise_input: schemas.AnaliseInput,
+    db: Session = Depends(get_db),
+):
+    db_session.set(db)
+
+    if not count_filled_properties(analise_input):
+        raise HTTPException(
+            status_code=400, detail="Ao menos 15 campos devem ser preenchidos."
+        )
+
+    return analise_input

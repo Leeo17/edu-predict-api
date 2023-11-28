@@ -48,3 +48,50 @@ class EmailInput(BaseModel):
 class Curso(BaseModel):
     id: int
     nome: str
+
+
+class AnaliseInput(BaseModel):
+    dataIngresso: str
+    dataConclusao: str
+    curso: int
+    cursoContagemDisciplinas: int
+    cursoContagemHoras: int
+    contagemDisciplinasCursadas: int
+    contagemHorasCursadas: int
+    contagemReprovacoes: int
+    rendaMensal: str
+    corRaca: str
+    cotaSisu: str
+    atividadeRemunerada: str
+    idadeAtividadeRemunerada: str
+    estudos: str
+    linguaEstrangeira: str
+    principalFator: str
+    trabalharCurso: str
+    anoConclusaoEnsinoMedio: int
+    turnoEnsinoMedio: str
+    tipoEnsinoMedio: str
+    comunidadeQuilombola: str
+    tempoCursinho: str
+    ocupacaoMae: str
+    ocupacaoPai: str
+    situacaoMoradia: str
+    estadoNascimento: str
+    localResidencia: str
+    motivoCurso: str
+    instrucaoMae: str
+    instrucaoPai: str
+    estadoCivil: str
+    sexo: str
+    participacaoEconomica: str
+    contribuintesRendaFamiliar: int
+    sustentadasRendaFamiliar: int
+    escolhaCurso: str
+    recursosEscolhaCurso: str
+    influenciasEscolhaCurso: str
+    razaoNovoProcessoSeletivo: str
+    etniaIndigena: str
+    necessidadeEspecial: str
+    tipoNecessidadeEspecial: str
+    vestibularOutrosAnos: str
+    iniciouCursoSuperior: str
