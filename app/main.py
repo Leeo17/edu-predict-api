@@ -158,15 +158,15 @@ async def delete_user_analysis(
 
 @app.post("/analysis")
 async def new_analysis(
-    # analise_input: schemas.AnaliseInput,
+    analise_input: schemas.AnaliseInput,
     db: Session = Depends(get_db),
 ):
     db_session.set(db)
 
-    # if not count_filled_properties(analise_input):
-    #     raise HTTPException(
-    #         status_code=400, detail="Ao menos 15 campos devem ser preenchidos."
-    #     )
+    if not count_filled_properties(analise_input):
+        raise HTTPException(
+            status_code=400, detail="Ao menos 15 campos devem ser preenchidos."
+        )
 
     async with aiohttp.ClientSession() as session:
         response = await session.post(
