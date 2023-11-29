@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     EMAIL_PASSWORD: str
     EMAIL_FROM: EmailStr
     APP_URL: str
+    MODEL_URL: str
 
     class Config:
         env_file = "./.env"
