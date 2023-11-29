@@ -51,47 +51,47 @@ class Curso(BaseModel):
 
 
 class AnaliseInput(BaseModel):
-    data_ingresso: str
-    data_conclusao: str
-    curso: int
+    data_ingresso: str  # YYYY-MM-DD
+    data_conclusao: str  # YYYY-MM-DD
+    curso: int  # id do curso
     curso_contagem_disciplinas: int
     curso_contagem_horas: int
     contagem_disciplinas_cursadas: int
     contagem_horas_cursadas: int
     contagem_reprovacoes: int
-    renda_mensal: str
-    cor_raca: str
-    cota_sisu: str
-    atividade_remunerada: str
-    idade_atividade_remunerada: str
-    estudos: str
-    lingua_estrangeira: str
-    principal_fator: str
-    trabalhar_curso: str
-    ano_conclusao_ensino_medio: int
-    turno_ensino_medio: str
-    tipo_ensino_medio: str
-    comunidade_quilombola: str
-    tempo_cursinho: str
-    ocupacao_mae: str
-    ocupacao_pai: str
-    situacao_moradia: str
-    estado_nascimento: str
-    local_residencia: str
-    motivo_curso: str
-    instrucao_mae: str
-    instrucao_pai: str
-    estado_civil: str
-    sexo: str
-    participacao_economica: str
+    renda_mensal: str  # RENDA_FAMILIAR_OPTIONS
+    cor_raca: str  # COR_RACA_OPTIONS
+    cota_sisu: str  # COTA_SISU_OPTIONS
+    atividade_remunerada: str  # ATIVIDADE_REMUNERADA_OPTIONS
+    idade_atividade_remunerada: str  # IDADE_ATIVIDADE_REMUNERADA_OPTIONS
+    estudos: str  # ESTUDOS_OPTIONS
+    lingua_estrangeira: str  # LINGUA_ESTRANGEIRA_OPTIONS
+    principal_fator: str  # FATORES_OPTIONS
+    trabalhar_curso: str  # TRABALHO_OPTIONS
+    ano_conclusao_ensino_medio: int  # YYYY mínimo de 1989 e máximo de 2019
+    turno_ensino_medio: str  # TURNO_ENSINO_MEDIO_OPTIONS
+    tipo_ensino_medio: str  # TIPO_ENSINO_MEDIO_OPTIONS
+    comunidade_quilombola: str  # SIM_NAO_OPTIONS
+    tempo_cursinho: str  # CURSINHO_OPTIONS
+    ocupacao_mae: str  # OCUPACAO_MAE_OPTIONS
+    ocupacao_pai: str  # OCUPACAO_PAI_OPTIONS
+    situacao_moradia: str  # SITUACAO_MORADIA_OPTIONS
+    estado_nascimento: str  # ESTADO_NASCIMENTO_OPTIONS
+    local_residencia: str  # LOCAL_RESIDENCIA_OPTIONS
+    motivo_curso: str  # MOTIVO_CURSO_OPTIONS
+    instrucao_mae: str  # NIVEL_INSTRUCAO_OPTIONS
+    instrucao_pai: str  # NIVEL_INSTRUCAO_OPTIONS
+    estado_civil: str  # ESTADO_CIVIL_OPTIONS
+    sexo: str  # SEXO_OPTIONS
+    participacao_economica: str  # PARTICIPACAO_FAMILIAR_OPTIONS
     contribuintes_renda_familiar: int
     sustentadas_renda_familiar: int
-    escolha_curso: str
-    recursos_escolha_curso: str
-    influencias_escolha_curso: str
-    razao_novo_processo_seletivo: str
-    etnia_indigena: str
-    necessidade_especial: str
-    tipo_necessidade_especial: str
-    vestibular_outros_anos: str
-    iniciou_curso_superior: str
+    escolha_curso: str  # ESCOLHA_CURSO_OPTIONS
+    recursos_escolha_curso: str  # RECURSOS_ESCOLHA_CURSO_OPTIONS
+    influencias_escolha_curso: str  # INFLUENCIA_ESCOLHA_CURSO_OPTIONS
+    razao_novo_processo_seletivo: str  # NOVO_PROCESSO_SELETIVO_OPTIONS
+    etnia_indigena: str  # INDIGENA_OPTIONS
+    necessidade_especial: str  # NECESSIDADE_ESPECIAL_OPTIONS
+    tipo_necessidade_especial: str  # TIPO_NECESSIDADE_ESPECIAL_OPTIONS
+    vestibular_outros_anos: str  # VESTIBULAR_OUTROS_ANOS_OPTIONS
+    iniciou_curso_superior: str  # INICIO_CURSO_SUPERIOR_OPTIONS
