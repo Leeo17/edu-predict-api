@@ -27,11 +27,13 @@ Abra o terminal ou prompt de comando no diretório clonado anteriormente.
    - No Windows:
 
      `python -m venv venv`
+
      `.\venv\Scripts\activate`
 
    - No Linux ou macOS:
 
      `python3 -m venv venv`
+
      `source venv/bin/activate`
 
 ## 6. Instale as dependências do projeto
