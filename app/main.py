@@ -1,7 +1,5 @@
-import json
 from datetime import timedelta
 
-import aiohttp
 from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
@@ -156,20 +154,20 @@ async def delete_user_analysis(
     analysis_service.delete_user_analysis(analysis_id, current_user.id)
 
 
-@app.post("/analysis")
-async def new_analysis(
-    analise_input: schemas.AnaliseInput,
-    db: Session = Depends(get_db),
-):
-    db_session.set(db)
+# @app.post("/analysis")
+# async def new_analysis(
+#     analise_input: schemas.AnaliseInput,
+#     db: Session = Depends(get_db),
+# ):
+#     db_session.set(db)
 
-    if not count_filled_properties(analise_input):
-        raise HTTPException(
-            status_code=400, detail="Ao menos 15 campos devem ser preenchidos."
-        )
+#     if not count_filled_properties(analise_input):
+#         raise HTTPException(
+#             status_code=400, detail="Ao menos 15 campos devem ser preenchidos."
+#         )
 
-    async with aiohttp.ClientSession() as session:
-        response = await session.post(
-            settings.MODEL_URL, json=json.loads(analysis_form), ssl=False
-        )
-        return await response.json()
+#     async with aiohttp.ClientSession() as session:
+#         response = await session.post(
+#             settings.MODEL_URL, json=json.loads(analysis_form), ssl=False
+#         )
+#         return await response.json()
