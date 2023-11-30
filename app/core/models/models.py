@@ -24,7 +24,7 @@ class Usuario(Base):
 class Analise(Base):
     __tablename__ = "analises"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, index=True)
+    id = Column(UUID(as_uuid=True), primary_key=True, index=True, default=uuid.uuid4)
     id_usuario = Column(UUID(as_uuid=True), ForeignKey("usuarios.id"), nullable=False)
     indice_potencial_evasao = Column(Double, nullable=False)
     data = Column(DateTime, default=datetime.utcnow, nullable=False)

@@ -1,3 +1,6 @@
+import random
+from datetime import datetime
+
 from fastapi import HTTPException
 
 import app.core.models.models as models
@@ -27,3 +30,17 @@ def delete_user_analysis(analysis_id: str, user_id: str):
 
     db_context.delete(db_analysis)
     db_context.commit()
+
+
+def create_analysis(analysis: schemas.AnaliseInput, user: schemas.Usuario):
+    db_context = db_session.get()
+    db_analysis = models.Analise(
+        id_usuario=user.id,
+        indice_potencial_evasao=round(random.uniform(0, 1), 3),
+        data=datetime.utcnow(),
+    )
+    db_context.add(db_analysis)
+    db_context.commit()
+    db_context.refresh(db_analysis)
+
+    return db_analysis

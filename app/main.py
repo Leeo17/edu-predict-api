@@ -1,7 +1,5 @@
-import json
 from datetime import timedelta
 
-import aiohttp
 from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
@@ -17,7 +15,6 @@ from app.core.models.database import Base, db_session, engine, get_db
 from app.core.settings import settings
 
 app = FastAPI()
-analysis_form = '{"RENDA_FAMILIAR_OPTIONS":"De R$ 1448,01 até R$ 1634,00", "COR_RACA_OPTIONS":"Branca", "COTA_SISU_OPTIONS":"Independente da renda + ensino médio", "ATIVIDADE_REMUNERADA_OPTIONS":"Sim - meio período", "IDADE_ATIVIDADE_REMUNERADA_OPTIONS":"Depois dos 16", "ESTUDOS_OPTIONS":"Integralmente em escola particular", "LINGUA_ESTRANGEIRA_OPTIONS":"Leio apenas uma outra Língua Estrangeira", "FATORES_OPTIONS":"Persistência e hábitos de estudo", "TRABALHO_OPTIONS":"Sim, desde o primeiro ano, em tempo integral", "TURNO_ENSINO_MEDIO_OPTIONS":"Maior parte diurno", "TIPO_ENSINO_MEDIO_OPTIONS":"Ensino médio regular", "SIM_NAO_OPTIONS":"Sim", "CURSINHO_OPTIONS":"Não fiz cursinho", "OCUPACAO_MAE_OPTIONS":"Sócia ou proprietária de empresa", "OCUPACAO_PAI_OPTIONS":"Parlamentar ou cargo eleitoral, diplomata, militar", "SITUACAO_MORADIA_OPTIONS":"Mora em república, casa de estudante, pensão ou pensionato", "ESTADO_NASCIMENTO_OPTIONS":"Paraná", "LOCAL_RESIDENCIA_OPTIONS":"Curitiba", "MOTIVO_CURSO_OPTIONS":"Permite conciliar aula e trabalho", "NIVEL_INSTRUCAO_OPTIONS":"Sem escolaridade", "ESTADO_CIVIL_OPTIONS":"Casado(a)", "SEXO_OPTIONS":"Masculino", "PARTICIPACAO_FAMILIAR_OPTIONS":"Trabalho e contribuo em parte para o sustento da família", "ESCOLHA_CURSO_OPTIONS":"Muito indeciso (entre a opção que fez e várias outras)", "RECURSOS_ESCOLHA_CURSO_OPTIONS":"Conversas com professores", "INFLUENCIA_ESCOLHA_CURSO_OPTIONS":"Profissionais da área", "NOVO_PROCESSO_SELETIVO_OPTIONS":"Por desejar outra formação", "INDIGENA_OPTIONS":"Tupi Guarani", "NECESSIDADE_ESPECIAL_OPTIONS":"Sim", "TIPO_NECESSIDADE_ESPECIAL_OPTIONS":"Transtorno do Espectro do Autismo", "VESTIBULAR_OUTROS_ANOS_OPTIONS":"Sim, este é o segundo ano que faço vestibular", "INICIO_CURSO_SUPERIOR_OPTIONS":"Sim, estou cursando"}'
 
 origins = ["http://localhost:4200", settings.APP_URL]
 
@@ -156,9 +153,10 @@ async def delete_user_analysis(
     analysis_service.delete_user_analysis(analysis_id, current_user.id)
 
 
-@app.post("/analysis")
+@app.post("/analysis", response_model=schemas.Analise)
 async def new_analysis(
     analise_input: schemas.AnaliseInput,
+    current_user: schemas.Usuario = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     db_session.set(db)
@@ -168,8 +166,4 @@ async def new_analysis(
             status_code=400, detail="Ao menos 15 campos devem ser preenchidos."
         )
 
-    async with aiohttp.ClientSession() as session:
-        response = await session.post(
-            settings.MODEL_URL, json=json.loads(analysis_form), ssl=False
-        )
-        return await response.json()
+    return analysis_service.create_analysis(analise_input, current_user)
