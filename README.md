@@ -22,14 +22,16 @@ Abra o terminal ou prompt de comando no diretório clonado anteriormente.
 
    `pip install virtualenv`
 
-2. Crie um ambiente virtual
+2. Use os comandos abaixo para criar um novo ambiente virtual e ativá-lo
 
    - No Windows:
 
+     `python -m venv venv`
      `.\venv\Scripts\activate`
 
    - No Linux ou macOS:
 
+     `python3 -m venv venv`
      `source venv/bin/activate`
 
 ## 6. Instale as dependências do projeto
