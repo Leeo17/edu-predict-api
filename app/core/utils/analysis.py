@@ -37,7 +37,7 @@ def create_analysis(analysis: schemas.AnaliseInput, user: schemas.Usuario):
     db_analysis = models.Analise(
         id_usuario=user.id,
         indice_potencial_evasao=round(random.uniform(0, 1), 3),
-        data=datetime.utcnow(),
+        data=datetime.now(),
     )
     db_context.add(db_analysis)
     db_context.commit()
